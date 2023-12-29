@@ -1,0 +1,20 @@
+format: jb-book
+root: Notebooks/index
+# options:  
+#  numbered: True  # Number sections 
+parts:
+- caption: Introducción
+  numbered: True
+  chapters:
+  - file: Notebooks/00_Formalismo/01_00_Formalismo
+    sections:
+    - file: Notebooks/00_Formalismo/01_Numeros_Complejos.ipynb
+
+
+#- caption: Part 1
+#  numbered: True
+#  maxdepth: 3     # The displayed Table of Contents will only have two levels
+#  chapters:
+#  - file: docs/about_py
+#    sections:
+#      - file: docs/getting_started
