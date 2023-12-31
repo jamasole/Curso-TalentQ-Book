@@ -1,9 +1,9 @@
 import numpy as np
-from scipy import linalg 
+import scipy.linalg as la
 from IPython.display import display,Markdown,Latex
 import matplotlib.pyplot as plt
-from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit
-
+from qiskit.tools.visualization import array_to_latex
+import copy 
 
 
 
@@ -126,22 +126,70 @@ def draw_unit_circle():
     plt.gca().add_patch(unit_circle)
 	
 
-def Expande_Ket(u):
-    a=r'$| u \rangle $  ='
+def braket(u,v):
+    assert len(u)==len(v)
+    u = np.array(u).flatten()
+    v = np.array(v).flatten()
+    return np.sum([u[i].conjugate()*v[i] for i in range(len(u))])
+
+
+def ket_bra(u,v):
+    assert len(u)==len(v)
+    u = np.array(u).flatten()
+    v = np.array(v).flatten()
+    ket_bra = np.zeros([len(u),len(v)],dtype=complex)
     for i in range(len(u)):
-        if (i+1)%len(u)!=0:
-            a+=r' %s |$e_%i \rangle  $ + ' %(u[i][0],i)  
-        elif (i+1)%len(u)==0:
-            a+= r" %s |$e_%i\rangle $ " %(u[i][0],i)
-    display(Markdown(a))
+        for j in range(len(v)):
+            ket_bra[i,j]= u[i]*v[j].conjugate()            
+    return ket_bra
 
 
-def Norm(uket):   
-    ubra =uket.conj().T
-    norma = np.sqrt(np.dot(ubra,uket)[0,0]).real 
-    return norma    
+def norm(u):
+        return np.sqrt(braket(u,u).real)         
 
+def normalized(u):
+        return u/norm(u)
     
+def random_ket(d, seed = None):
+    np.random.seed(seed)
+    ket = np.array([complex(np.random.uniform(-1, 1), np.random.uniform(-1, 1)) for _ in range(d)])
+    ket /= norm(ket)
+    return np.reshape(ket,[d,1])
+    
+def random_probs(r):
+    rp = np.random.rand(r)
+    rp /= np.sum(rp)
+    return rp
+    
+def vev_sig(A, ket):
+
+    assert np.round(np.sqrt(np.dot(ket.conj().T,ket)[0,0]).real,5)  == 1. # chequeamos que la norma es unidad
+    bra = ket.conj().T
+    
+    'el valor esperado'
+    vev = np.dot(bra,np.dot(A,ket))[0,0].real
+   
+    'la varianza'
+    A2 = np.dot(A,A)
+    var= np.dot(bra,np.dot(A2,ket))[0,0] - vev**2
+    sig = np.sqrt(np.abs(var.real))
+    
+    return(np.round(vev,5),np.round(sig,5))
+    
+    
+def basis_change(C,O):
+    
+    assert O.shape[0]==C.shape[0]
+    
+    if O.shape[1] != 1:
+        tO = C.conjugate().T@O@C
+    
+    elif O.shape[1] == 1:
+        tO = C.conjugate().T@O
+        
+    return tO
+
+
 'para cambiar el color de las celdas'
 from IPython.core.magic import register_line_magic
 from IPython.display import HTML, display
@@ -160,56 +208,62 @@ def bg(color, cell=None):
 # use for example %bg rgba(0, 160, 120,0.05) in a cell
 
 
-<<<<<<< HEAD
+##############################################################################################
 # función que calcula distribución de probabilidades y amplitudes a partir de un diccionario de cuentas
-=======
-<<<<<<< HEAD
-# función que calcula distribución de probabilidades y amplitudes a partir de un diccionario de cuentas
-=======
-# función que calcula distribución de probabilidades a partir de un diccionario de cuentas
->>>>>>> c91834496956bd31743a2a108e32df649dd0c8bc
->>>>>>> ff71a8c41af8176e6473df19aa343a50dfaf584f
 
-def probs_amps(cuentas): # frecuencias_dict es un diccionario con la estadística de resultados
-    
-    prob_dict=cuentas.copy() # vamos a modificar el diccionario "cuentas" con las probabilidades 
-    amp_dict=cuentas.copy()  # y las amplitudes
-    keys = list(cuentas.keys())
-    values = list(cuentas.values())
+def get_probs(counts): # frecuencias_dict es un diccionario con la estadística de resultados
+   
+    prob_dict=counts.copy() # vamos a modificar el diccionario "cuentas" con las probabilidades 
+#    amp_dict=counts.copy()  # y las amplitudes
+    keys = list(counts.keys())
+    values = list(counts.values())
     
     N=sum(values)
     probabilidades = [v/N for v in values] # lista de frecuencias relativas
  
     for i in range(len(keys)):
         prob_dict[keys[i]]= probabilidades[i]
-        amp_dict[keys[i]] = np.sqrt(probabilidades[i]) #las amplitudes, sólo en valor absoluto, las fases no son accesibles
+#        amp_dict[keys[i]] = np.sqrt(probabilidades[i]) #las amplitudes, sólo en valor absoluto, las fases no son accesibles
     
-    return  prob_dict, amp_dict
+    return  prob_dict #, amp_dict
 
 
+
+
+##############################################################################################
 # función que calcula el valor esperado de ZZ..Z para un circuito de n cúbits 
 
-def val_esp_sigma(cuentas):
-    probs, amps = probs_amps(cuentas)
+def expval_Zn_from_counts(counts):
+    probs = get_probs(counts)
 #    print(probs)
-
-    media = 0
-    varianza = 0
+    
+    mean = 0
+    variance = 0
+   
+    for bitstring,  prob in probs.items():
+#        print(bitstring, prob)
+        mean += (-1)**(sum([int(bit) for bit in bitstring])) * prob 
 
     for bitstring,  prob  in probs.items():
-        media += (-1)**(sum([int(bit) for bit in bitstring])) * prob 
-
-    for bitstring,  prob  in probs.items():
-        varianza += ((-1)**(sum([int(bit) for bit in bitstring]))-media)**2 * prob 
+        variance += ((-1)**(sum([int(bit) for bit in bitstring]))-mean)**2 * prob 
     
-    sigma = np.round(np.sqrt(varianza),5)
+    sigma = np.round(np.sqrt(variance),5)
     
-    return media, sigma
+    return mean, sigma
 
 
+
+##############################################################################################
 # funcion que añade una serie de medidores en la base asociada a una cadena de Pauli
 
-def add_Pauli_measurement(qc,paulistring):
+def add_Bell_measurement(qc,qubits=[0,1]):
+    qc.cx(qubits[0],qubits[1])
+    qc.h(0)
+    qc.measure([0,1],[0,1])
+    
+    
+
+def add_multimeasure_XYZ(qc,paulistring):
 
     assert(qc.num_qubits==len(paulistring))
 
@@ -227,6 +281,24 @@ def add_Pauli_measurement(qc,paulistring):
 
     return qc 
 
+    
+def measure_in_basis(qc,axis="Z",shots=1024):
+    qc0 = copy.deepcopy(qc)
+    if axis == "Z":
+        qc0.measure(0,0)
+    if axis == "X":
+        qc0.h(0)
+        qc0.measure(0,0) 
+        qc0.h(0)
+    elif axis == "Y":
+        qc0.sdg(0)
+        qc0.h(0)
+        qc0.measure(0,0) 
+        qc0.h(0)
+        qc0.s(0)
+        
+    counts=execute(qc0,backend=Aer.get_backend('qasm_simulator'),shots=shots).result().get_counts()
+    return counts
 
 # funcion que incorpora un funcion binaria como una puerta partir de una tabla de valores de salida 
 
