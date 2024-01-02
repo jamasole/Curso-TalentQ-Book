@@ -1,5 +1,5 @@
-title : Scientific Python QuickStart
-author: Thomas J. Sargent and John Stachurski
+title : Curso de Introducción a la Computación Cuántica
+author: Javier Mas Solé
 logo: 'qe-logo-large.png'
 
 # Short description about the book
@@ -35,7 +35,7 @@ html:
   use_edit_page_button        : true
   comments:
     utterances:
-      repo: "davidcb98/JupyterBook_plantilla"
+      repo: "jamasole/Curso-TalentQ-Book"
 
 # Interact link settings
 notebook_interface            : "notebook"
@@ -43,13 +43,13 @@ notebook_interface            : "notebook"
 # Launch button settings
 repository:
   url                         : https://github.com/davidcb98/JupyterBook_plantilla
-  path_to_book                : "mini_book"    # Optional path to your book, relative to the repository root
+  path_to_book                : "Book"    # Optional path to your book, relative to the repository root
   branch                      : master  # Which branch of the repository should be used when creating links (optional)
 
 launch_buttons:
   notebook_interface     : "jupyterlab"  # or "classic"
   binderhub_url          : "https://mybinder.org"
-  thebe                  : true
+  thebe                  : true    # para ejecución interactiva
 
 
 

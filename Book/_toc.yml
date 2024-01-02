@@ -1,14 +1,22 @@
 format: jb-book
-root: Notebooks/index
+root: docs/index
 # options:  
 #  numbered: True  # Number sections 
 parts:
-- caption: Introducción
+- caption: Las reglas del juego
   numbered: True
   chapters:
-  - file: Notebooks/00_Formalismo/01_00_Formalismo
+  - file: docs/00_Formalismo/01_formalismo_matematico.md
     sections:
-    - file: Notebooks/00_Formalismo/01_Numeros_Complejos.ipynb
+    - file: docs/00_Formalismo/01_Numeros_Complejos.ipynb
+    - file: docs/00_Formalismo/01_Vectores.ipynb
+    - file: docs/00_Formalismo/01_Operadores.ipynb
+    - file: docs/00_Formalismo/01_Tensores.ipynb
+    - file: docs/00_Formalismo/01_Probabilidades.ipynb    
+  
+  - file: docs/00_Formalismo/02_Fundamentos_MC.md
+    sections:
+    - file: docs/00_Formalismo/02_Fundamentos_MC.ipynb
 
 
 #- caption: Part 1
