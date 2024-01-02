@@ -18,6 +18,13 @@ parts:
     sections:
     - file: docs/00_Formalismo/02_Fundamentos_MC.ipynb
 
+- caption: Circuitos
+  numbered: True
+  chapters:
+  - file: docs/
+    sections:
+    - file: docs/01_Circuitos/111_Cubits.ipynb 
+    - file: docs/01_Circuitos/112_Puertas_Simples.ipynb
 
 #- caption: Part 1
 #  numbered: True
